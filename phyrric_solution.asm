@@ -5,7 +5,7 @@ SECTION .data
 	len_Error: equ $-Error
 	Error_mismatch: db "mismatch",10
 	len_Error_m: equ $-Error_mismatch
-	Success: db "the file contains a correct wh4tever"
+	Success: db "the file contains a correct permutation"
 	len_Success: equ $-Success
 	SYS_OPEN: equ 2
 	SYS_READ: equ 0
@@ -13,7 +13,6 @@ SECTION .data
 	O_RDONLY: equ 0
 
 	buffer_size: equ 4096
-	;buffer_size: equ 512
 	buffer: times buffer_size db 0
 	
 	read_size: dq 0
@@ -40,11 +39,6 @@ SECTION .text
 	or %1,%1
 	jz %%if_zero
 	%%else: ;read a number
-	;cmp byte[T+%1], 0
-	;jne exit_error_mismatch
-	;mov r9, [T+%1]
-	;bts r9, 0
-	;mov [T+%1], r9
 	cmp %1, 64
 	jb %%comp
 	cmp %1, 128
@@ -62,7 +56,7 @@ SECTION .text
 		jmp %%end_comp
 	%%comp_1:
 		sub %1, 64
-		bts r9, %1 ;used to be rdx
+		bts r9, %1
 		jc exit_error
 		jmp %%end_comp
 	%%comp_2:
@@ -75,23 +69,16 @@ SECTION .text
 	jmp %%endif
 
 	%%if_zero: ;read a zero
-		;mov r8, [T]
-		;mov r9, [T+64]
-		;mov r10, [T+128]
-		;mov r11, [T+192]
 		bts r8, 0
-		;jc exit_error_mismatch
+		jc exit_error_mismatch
 		xor r8, r12 ;check 1st 64 bits
-		;jnz exit_error_mismatch
+		jnz exit_error_mismatch
 		xor r9, r13 ;check 2nd 64 bits
-		;jnz exit_error_mismatch
-		;or r8,r9
+		jnz exit_error_mismatch
 		xor r10, r14 ;check 3rd 64 bits
-		;jnz exit_error_mismatch
-		;or r8,r10
-		xor r11, r15;check 4th 64 bits
-		;or r8,r11
-		;jnz exit_error_mismatch
+		jnz exit_error_mismatch
+		xor r11, r15 ;check 4th 64 bits
+		jnz exit_error_mismatch
 	%%endif:
 	inc rbp
 %endmacro
@@ -211,9 +198,9 @@ _start:
 	bts r12, 0
 
 
-	mov rax, SYS_CLOSE ;guess what
+	mov rax, SYS_CLOSE
 	mov rdi, [file_desc] ;load file descriptor
-	syscall
+	sys-call
 
 ;/preprocessing
 	mov rbp, [pe_size]
@@ -229,7 +216,7 @@ _start:
 	mov rdi, [filename]
 	mov rdx, O_RDONLY
 	xor rsi, rsi
-	syscall
+	sys-call
 
 	cmp rax, -1
 	je exit_error_b4_opening
@@ -277,7 +264,7 @@ _start:
 	jmp exit_success
 	
 exit_success:
-	mov rax, SYS_CLOSE ;guess what
+	mov rax, SYS_CLOSE
 	mov rdi, [file_desc] ;load file descriptor
 	syscall
 
@@ -292,16 +279,15 @@ exit_success:
 	
 
 exit_error:
-	mov rax, SYS_CLOSE ;guess what
+	mov rax, SYS_CLOSE
 	mov rdi, [file_desc] ;load file descriptor
 	syscall
 	mov rax, 60
-	;mov rdi, 1
-	mov rdi, 2 ;DEBUG!!!
+	mov rdi, 1
 	syscall
 
 exit_debug:
-	mov rax, SYS_CLOSE ;guess what
+	mov rax, SYS_CLOSE
 	mov rdi, [file_desc] ;load file descriptor
 	syscall
 	mov rax, 60
@@ -309,7 +295,7 @@ exit_debug:
 	syscall
 
 exit_error_mismatch:
-	mov rax, SYS_CLOSE ;guess what
+	mov rax, SYS_CLOSE
 	mov rdi, [file_desc] ;load file descriptor
 	syscall
 	mov rax, 1
@@ -318,8 +304,7 @@ exit_error_mismatch:
 	mov rdx, len_Error_m
 	syscall
 	mov rax, 60
-	;mov rdi, 1
-	mov rdi, 1 ;DEBUG!!!
+	mov rdi, 1
 	syscall
 
 exit_error_b4_opening:
@@ -329,5 +314,5 @@ exit_error_b4_opening:
 	mov rdx, len_Error
 	syscall
 	mov rax, 60
-	mov rdi, r10 ;DEBUG!!!
+	mov rdi, 1
 	syscall

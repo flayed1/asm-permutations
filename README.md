@@ -5,7 +5,7 @@ There was one twist: the program was supposed  to be as fast as possible.
 
 ## The solution
 I came up with a number of fun ideas to optimize the code.  
-The general idea was to use only registers whenever possible.
+The general idea was to use only registers whenever possible.  
 To minimize the number of syscalls I used a buffer that stored results of read syscall.  
 To minimize the number of memory hits to the buffer, I used the RBX register as a temporary buffer to store 8 byes, process the lowest 8 bits and then right shift to move to the next byte.  
 Other optimizations included loop unrolling to cut the number of jumps.    

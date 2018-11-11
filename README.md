@@ -1,6 +1,6 @@
 # asm-permutations
 ## The problem
-The objective was to determine whether a binary file contained correct zero-separated permutations of set {1,...,255}.  
+The objective was to determine whether a binary file contained correct zero-separated permutations of a subset of {1,...,255}.  
 There was one twist: the program was supposed  to be as fast as possible.  
 
 ## The solution
